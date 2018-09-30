@@ -1,0 +1,622 @@
+module treeset
+
+open Integer6
+
+one sig null {}
+
+
+one sig TreeSetIntVar {}
+
+abstract sig TreeSetIntVarNode  {}
+
+one sig QF {
+    thiz_0:        one TreeSetIntVar, 
+    root_0:        TreeSetIntVar -> one (TreeSetIntVarNode+null),
+    key_0:         TreeSetIntVarNode -> one (JavaPrimitiveIntegerValue+null),
+    blackHeight_0: TreeSetIntVarNode -> one JavaPrimitiveIntegerValue,
+    color_0:       TreeSetIntVarNode -> one (boolean),
+    fparent_0:      TreeSetIntVarNode -> lone (TreeSetIntVarNode+null),
+    bparent_0:      TreeSetIntVarNode -> lone (TreeSetIntVarNode),
+
+    fleft_0:        TreeSetIntVarNode -> lone (TreeSetIntVarNode+null),
+    bleft_0:        TreeSetIntVarNode -> lone (TreeSetIntVarNode+null),
+    fright_0:       TreeSetIntVarNode -> lone (TreeSetIntVarNode+null),
+    bright_0:       TreeSetIntVarNode -> lone (TreeSetIntVarNode+null),
+    size_0:        TreeSetIntVar -> one JavaPrimitiveIntegerValue    
+
+}
+
+
+fact repOk {
+   let RED = false,
+       BLACK = true,
+       key = QF.key_0,
+       blackHeight = QF.blackHeight_0,
+       left = QF.fleft_0 +QF.bleft_0,
+       right = QF.fright_0+QF.bright_0,
+       color = QF.color_0,
+       parent = QF.fparent_0 + QF.bparent_0,
+       root = QF.root_0,
+       thiz = QF.thiz_0
+   | {
+
+		RED=false &&
+		BLACK=true && 
+		
+        thiz.root.parent in null && 
+//		( thiz.root!=null => thiz.root.color = BLACK ) && 
+		( all n: TreeSetIntVarNode | n in thiz.root.*(left + right) => (
+
+				/*non_null*/
+                                (n.key != null ) &&
+
+				/* parent left */
+                                ( n.left != null => n.left.parent = n ) &&
+
+				/* parent right */
+				( n.right != null => n.right.parent = n ) &&
+
+				/* parent */
+				( n.parent != null => n in n.parent.(left + right) ) &&
+
+				/* form a tree */
+				( n !in n.^parent ) &&
+
+				/* left sorted */
+				( all x : n.left.^(left + right) + n.left - null | pred_java_primitive_integer_value_gt[n.key,x.key]) &&
+
+				/* right sorted */
+				( all x : n.right.^(left + right) + n.right - null | pred_java_primitive_integer_value_gt[x.key,n.key]) &&
+
+				/* no red node has a red parent */
+				( n.color = RED && n.parent != null => n.parent.color = BLACK ) &&
+
+				/* black height leaf */
+				( ( n.left=null && n.right=null ) => ( equ[n.blackHeight,i321] ) ) &&
+
+				/* black height left non null */
+				( n.left!=null && n.right=null => ( 
+				      ( n.left.color = RED ) && 
+				      ( equ[n.left.blackHeight,i321] ) && 
+				      ( equ[n.blackHeight,i321] )  
+				)) &&
+
+				/* black height right non null */
+				( n.left=null && n.right!=null =>  ( 
+				      ( n.right.color = RED ) && 
+				      ( equ[n.right.blackHeight,i321] ) && 
+				      ( equ[n.blackHeight,i321] ) 
+				 )) && 
+
+				/* inner node (RED/RED) */
+				( n.left!=null && n.right!=null && n.left.color=RED && n.right.color=RED => ( 
+				        ( equ[n.left.blackHeight,n.right.blackHeight] ) && 
+				        ( equ[n.blackHeight, n.left.blackHeight] ) 
+				)) && 
+
+				/* inner node (BLACK/BLACK) */
+				( n.left!=null && n.right!=null && n.left.color=BLACK && n.right.color=BLACK => ( 
+				        ( equ[n.left.blackHeight,n.right.blackHeight] ) && 
+				        ( equ[n.blackHeight,fun_java_primitive_integer_value_add[n.left.blackHeight,i321]] )  
+				)) && 
+
+				/* inner node (RED/BLACK) */
+				( n.left!=null && n.right!=null && n.left.color=RED && n.right.color=BLACK => ( 
+				        ( equ[n.left.blackHeight,fun_java_primitive_integer_value_add[n.right.blackHeight,i321]] ) && 
+				        ( equ[n.blackHeight,n.left.blackHeight]  )  
+				)) && 
+
+				/* inner node (BLACK/RED) */
+				( n.left!=null && n.right!=null && n.left.color=BLACK && n.right.color=RED => ( 
+				        ( equ[n.right.blackHeight,fun_java_primitive_integer_value_add[n.left.blackHeight,i321]] ) && 
+				        ( equ[n.blackHeight,n.right.blackHeight]  )   )) 
+
+			)	)
+
+}}
+
+
+
+fact {
+  all a, b: JavaPrimitiveIntegerValue | 
+    (a = b <=> pred_java_primitive_integer_value_eq[a,b]) 
+}
+
+
+fact { 
+let entry=(QF.thiz_0).(QF.root_0),ff1=QF.fleft_0,ff2=QF.fright_0,ff3=QF.fparent_0,bf1=QF.bleft_0,bf2=QF.bright_0,bf3=QF.bparent_0 | { 
+   -- forwardPlusBackwardAreFunctions 
+   no ((ff1.univ) & (bf1.univ)) 
+   no ((ff2.univ) & (bf2.univ)) 
+   no ((ff3.univ) & (bf3.univ)) 
+   N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26+N27 = ff1.univ + bf1.univ   
+   N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26+N27 = ff2.univ + bf2.univ   
+   N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26+N27 = ff3.univ + bf3.univ   
+
+  --forwardIsIndeedForward 
+  entry in N0+null and 
+  (all n : entry.*(ff1 + ff2) - null | ( 
+   node_min[(ff1).n] in node_prevs[n]) and ( 
+    node_min[(ff2).n] in node_prevs[n])) and 
+  (all disj n1, n2 : entry.*((ff1) + (ff2)) - null | ( 
+        (    some ((ff1).n1 + (ff2).n1) and 
+            some ((ff1).n2 + (ff2).n2) and 
+                node_min[(ff1).n1 + (ff2).n1] in node_prevs[node_min[(ff1).n2 + (ff2).n2]] 
+             ) implies n1 in node_prevs[n2] 
+   ) 
+   and 
+     let a = node_min[(ff1).n1 + (ff2).n1] | 
+     let b = node_min[(ff1).n2 + (ff2).n2] | 
+     (some ((ff1).n1 + (ff2).n1) and a = b and a.(ff1) = n1 and a.(ff2) = n2) implies n2 = n1.node_next[] 
+   ) 
+
+  --backwardsIsIndeedBackwards 
+   (bf1 in node_relprevs) && (bf2 in node_relprevs) 
+
+  --prefixReachableForward 
+    all x : entry.*(ff1 +ff2) -null | node_prevs[x] in entry.*(ff1 + ff2) 
+
+} 
+} 
+
+
+
+fact notReachableIsFix {all n : TreeSetIntVarNode | n in (TreeSetIntVarNode - (QF.thiz_0).(QF.root_0).*(QF.fleft_0 + QF.fright_0 + QF.fparent_0)) => (
+                        no n.(QF.bleft_0) and
+                        no n.(QF.bright_0) and
+                        no n.(QF.bparent_0) and
+                        n.(QF.fleft_0) = null and
+                        n.(QF.fright_0) = null and
+                        n.(QF.fparent_0) = null and
+                        n.(QF.color_0) = false  and
+                        n.(QF.blackHeight_0) = i320 and
+                        n.(QF.key_0) = i320 
+        )
+}
+
+
+fun FReach[] :set (N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26+N27) {
+    (QF.thiz_0).(QF.root_0).*(QF.fleft_0 + QF.fright_0) - null
+}
+
+
+one sig N0,N1,N2,N3,N4,N5,N6,N7,N8,N9,N10,N11,N12,N13,N14,N15,N16,N17,N18,N19,N20,N21,N22,N23,N24,N25,N26,N27 extends TreeSetIntVarNode {}
+
+
+one sig i320,i321,i322,i323,i324,i325,i326,i327,i328,i329,i3210,i3211,i3212,i3213,i3214,i3215,i3216,i3217,i3218,i3219,i3220,i3221,i3222,i3223,i3224,i3225,i3226,i3227,i3228 extends JavaPrimitiveIntegerValue {} 
+fact {
+	// int32 bounds 
+	b01 in i320->false+i321->false+i322->true+i323->true+i324->false+i325->false+i326->true+i327->true+i328->false+i329->false+i3210->true+i3211->true+i3212->false+i3213->false+i3214->true+i3215->true+i3216->false+i3217->false+i3218->true+i3219->true+i3220->false+i3221->false+i3222->true+i3223->true+i3224->false+i3225->false+i3226->true+i3227->true+i3228->false
+	i320->false+i321->false+i322->true+i323->true+i324->false+i325->false+i326->true+i327->true+i328->false+i329->false+i3210->true+i3211->true+i3212->false+i3213->false+i3214->true+i3215->true+i3216->false+i3217->false+i3218->true+i3219->true+i3220->false+i3221->false+i3222->true+i3223->true+i3224->false+i3225->false+i3226->true+i3227->true+i3228->false in b01
+	b00 in i320->false+i321->true+i322->false+i323->true+i324->false+i325->true+i326->false+i327->true+i328->false+i329->true+i3210->false+i3211->true+i3212->false+i3213->true+i3214->false+i3215->true+i3216->false+i3217->true+i3218->false+i3219->true+i3220->false+i3221->true+i3222->false+i3223->true+i3224->false+i3225->true+i3226->false+i3227->true+i3228->false
+	i320->false+i321->true+i322->false+i323->true+i324->false+i325->true+i326->false+i327->true+i328->false+i329->true+i3210->false+i3211->true+i3212->false+i3213->true+i3214->false+i3215->true+i3216->false+i3217->true+i3218->false+i3219->true+i3220->false+i3221->true+i3222->false+i3223->true+i3224->false+i3225->true+i3226->false+i3227->true+i3228->false in b00
+	b05 in i320->false+i321->false+i322->false+i323->false+i324->false+i325->false+i326->false+i327->false+i328->false+i329->false+i3210->false+i3211->false+i3212->false+i3213->false+i3214->false+i3215->false+i3216->false+i3217->false+i3218->false+i3219->false+i3220->false+i3221->false+i3222->false+i3223->false+i3224->false+i3225->false+i3226->false+i3227->false+i3228->false
+	i320->false+i321->false+i322->false+i323->false+i324->false+i325->false+i326->false+i327->false+i328->false+i329->false+i3210->false+i3211->false+i3212->false+i3213->false+i3214->false+i3215->false+i3216->false+i3217->false+i3218->false+i3219->false+i3220->false+i3221->false+i3222->false+i3223->false+i3224->false+i3225->false+i3226->false+i3227->false+i3228->false in b05
+	b04 in i320->false+i321->false+i322->false+i323->false+i324->false+i325->false+i326->false+i327->false+i328->false+i329->false+i3210->false+i3211->false+i3212->false+i3213->false+i3214->false+i3215->false+i3216->true+i3217->true+i3218->true+i3219->true+i3220->true+i3221->true+i3222->true+i3223->true+i3224->true+i3225->true+i3226->true+i3227->true+i3228->true
+	i320->false+i321->false+i322->false+i323->false+i324->false+i325->false+i326->false+i327->false+i328->false+i329->false+i3210->false+i3211->false+i3212->false+i3213->false+i3214->false+i3215->false+i3216->true+i3217->true+i3218->true+i3219->true+i3220->true+i3221->true+i3222->true+i3223->true+i3224->true+i3225->true+i3226->true+i3227->true+i3228->true in b04
+	b03 in i320->false+i321->false+i322->false+i323->false+i324->false+i325->false+i326->false+i327->false+i328->true+i329->true+i3210->true+i3211->true+i3212->true+i3213->true+i3214->true+i3215->true+i3216->false+i3217->false+i3218->false+i3219->false+i3220->false+i3221->false+i3222->false+i3223->false+i3224->true+i3225->true+i3226->true+i3227->true+i3228->true
+	i320->false+i321->false+i322->false+i323->false+i324->false+i325->false+i326->false+i327->false+i328->true+i329->true+i3210->true+i3211->true+i3212->true+i3213->true+i3214->true+i3215->true+i3216->false+i3217->false+i3218->false+i3219->false+i3220->false+i3221->false+i3222->false+i3223->false+i3224->true+i3225->true+i3226->true+i3227->true+i3228->true in b03
+	b02 in i320->false+i321->false+i322->false+i323->false+i324->true+i325->true+i326->true+i327->true+i328->false+i329->false+i3210->false+i3211->false+i3212->true+i3213->true+i3214->true+i3215->true+i3216->false+i3217->false+i3218->false+i3219->false+i3220->true+i3221->true+i3222->true+i3223->true+i3224->false+i3225->false+i3226->false+i3227->false+i3228->true
+	i320->false+i321->false+i322->false+i323->false+i324->true+i325->true+i326->true+i327->true+i328->false+i329->false+i3210->false+i3211->false+i3212->true+i3213->true+i3214->true+i3215->true+i3216->false+i3217->false+i3218->false+i3219->false+i3220->true+i3221->true+i3222->true+i3223->true+i3224->false+i3225->false+i3226->false+i3227->false+i3228->true in b02
+}
+
+
+
+fact { QF.fleft_0 in N0->N1+N0->N2+N0->N3+N0->N4+N0->N5+N0->N6+N0->N7+N0->N8+N0->N9+N0->N10+N0->N11+N0->N12+N0->N13+N0->N14+N0->N15+N0->N16+N0->N17+N0->N18+N0->N19+N0->N20+N0->N21+N0->N22+N0->N23+N0->N24+N0->N25+N0->N26+N0->N27+N0->null+N1->N2+N1->N3+N1->N4+N1->N5+N1->N6+N1->N7+N1->N8+N1->N9+N1->N10+N1->N11+N1->N12+N1->N13+N1->N14+N1->N15+N1->N16+N1->N17+N1->N18+N1->N19+N1->N20+N1->N21+N1->N22+N1->N23+N1->N24+N1->N25+N1->N26+N1->N27+N1->null+N2->N3+N2->N4+N2->N5+N2->N6+N2->N7+N2->N8+N2->N9+N2->N10+N2->N11+N2->N12+N2->N13+N2->N14+N2->N15+N2->N16+N2->N17+N2->N18+N2->N19+N2->N20+N2->N21+N2->N22+N2->N23+N2->N24+N2->N25+N2->N26+N2->N27+N2->null+N3->N4+N3->N5+N3->N6+N3->N7+N3->N8+N3->N9+N3->N10+N3->N11+N3->N12+N3->N13+N3->N14+N3->N15+N3->N16+N3->N17+N3->N18+N3->N19+N3->N20+N3->N21+N3->N22+N3->N23+N3->N24+N3->N25+N3->N26+N3->N27+N3->null+N4->N5+N4->N6+N4->N7+N4->N8+N4->N9+N4->N10+N4->N11+N4->N12+N4->N13+N4->N14+N4->N15+N4->N16+N4->N17+N4->N18+N4->N19+N4->N20+N4->N21+N4->N22+N4->N23+N4->N24+N4->N25+N4->N26+N4->N27+N4->null+N5->N6+N5->N7+N5->N8+N5->N9+N5->N10+N5->N11+N5->N12+N5->N13+N5->N14+N5->N15+N5->N16+N5->N17+N5->N18+N5->N19+N5->N20+N5->N21+N5->N22+N5->N23+N5->N24+N5->N25+N5->N26+N5->N27+N5->null+N6->N7+N6->N8+N6->N9+N6->N10+N6->N11+N6->N12+N6->N13+N6->N14+N6->N15+N6->N16+N6->N17+N6->N18+N6->N19+N6->N20+N6->N21+N6->N22+N6->N23+N6->N24+N6->N25+N6->N26+N6->N27+N6->null+N7->N8+N7->N9+N7->N10+N7->N11+N7->N12+N7->N13+N7->N14+N7->N15+N7->N16+N7->N17+N7->N18+N7->N19+N7->N20+N7->N21+N7->N22+N7->N23+N7->N24+N7->N25+N7->N26+N7->N27+N7->null+N8->N9+N8->N10+N8->N11+N8->N12+N8->N13+N8->N14+N8->N15+N8->N16+N8->N17+N8->N18+N8->N19+N8->N20+N8->N21+N8->N22+N8->N23+N8->N24+N8->N25+N8->N26+N8->N27+N8->null+N9->N10+N9->N11+N9->N12+N9->N13+N9->N14+N9->N15+N9->N16+N9->N17+N9->N18+N9->N19+N9->N20+N9->N21+N9->N22+N9->N23+N9->N24+N9->N25+N9->N26+N9->N27+N9->null+N10->N11+N10->N12+N10->N13+N10->N14+N10->N15+N10->N16+N10->N17+N10->N18+N10->N19+N10->N20+N10->N21+N10->N22+N10->N23+N10->N24+N10->N25+N10->N26+N10->N27+N10->null+N11->N12+N11->N13+N11->N14+N11->N15+N11->N16+N11->N17+N11->N18+N11->N19+N11->N20+N11->N21+N11->N22+N11->N23+N11->N24+N11->N25+N11->N26+N11->N27+N11->null+N12->N13+N12->N14+N12->N15+N12->N16+N12->N17+N12->N18+N12->N19+N12->N20+N12->N21+N12->N22+N12->N23+N12->N24+N12->N25+N12->N26+N12->N27+N12->null+N13->N14+N13->N15+N13->N16+N13->N17+N13->N18+N13->N19+N13->N20+N13->N21+N13->N22+N13->N23+N13->N24+N13->N25+N13->N26+N13->N27+N13->null+N14->N15+N14->N16+N14->N17+N14->N18+N14->N19+N14->N20+N14->N21+N14->N22+N14->N23+N14->N24+N14->N25+N14->N26+N14->N27+N14->null+N15->N16+N15->N17+N15->N18+N15->N19+N15->N20+N15->N21+N15->N22+N15->N23+N15->N24+N15->N25+N15->N26+N15->N27+N15->null+N16->N17+N16->N18+N16->N19+N16->N20+N16->N21+N16->N22+N16->N23+N16->N24+N16->N25+N16->N26+N16->N27+N16->null+N17->N18+N17->N19+N17->N20+N17->N21+N17->N22+N17->N23+N17->N24+N17->N25+N17->N26+N17->N27+N17->null+N18->N19+N18->N20+N18->N21+N18->N22+N18->N23+N18->N24+N18->N25+N18->N26+N18->N27+N18->null+N19->N20+N19->N21+N19->N22+N19->N23+N19->N24+N19->N25+N19->N26+N19->N27+N19->null+N20->N21+N20->N22+N20->N23+N20->N24+N20->N25+N20->N26+N20->N27+N20->null+N21->N22+N21->N23+N21->N24+N21->N25+N21->N26+N21->N27+N21->null+N22->N23+N22->N24+N22->N25+N22->N26+N22->N27+N22->null+N23->N24+N23->N25+N23->N26+N23->N27+N23->null+N24->N25+N24->N26+N24->N27+N24->null+N25->N26+N25->N27+N25->null+N26->N27+N26->null+N27->null }
+fact { QF.fright_0 in N0->N1+N0->N2+N0->N3+N0->N4+N0->N5+N0->N6+N0->N7+N0->N8+N0->N9+N0->N10+N0->N11+N0->N12+N0->N13+N0->N14+N0->N15+N0->N16+N0->N17+N0->N18+N0->N19+N0->N20+N0->N21+N0->N22+N0->N23+N0->N24+N0->N25+N0->N26+N0->N27+N0->null+N1->N2+N1->N3+N1->N4+N1->N5+N1->N6+N1->N7+N1->N8+N1->N9+N1->N10+N1->N11+N1->N12+N1->N13+N1->N14+N1->N15+N1->N16+N1->N17+N1->N18+N1->N19+N1->N20+N1->N21+N1->N22+N1->N23+N1->N24+N1->N25+N1->N26+N1->N27+N1->null+N2->N3+N2->N4+N2->N5+N2->N6+N2->N7+N2->N8+N2->N9+N2->N10+N2->N11+N2->N12+N2->N13+N2->N14+N2->N15+N2->N16+N2->N17+N2->N18+N2->N19+N2->N20+N2->N21+N2->N22+N2->N23+N2->N24+N2->N25+N2->N26+N2->N27+N2->null+N3->N4+N3->N5+N3->N6+N3->N7+N3->N8+N3->N9+N3->N10+N3->N11+N3->N12+N3->N13+N3->N14+N3->N15+N3->N16+N3->N17+N3->N18+N3->N19+N3->N20+N3->N21+N3->N22+N3->N23+N3->N24+N3->N25+N3->N26+N3->N27+N3->null+N4->N5+N4->N6+N4->N7+N4->N8+N4->N9+N4->N10+N4->N11+N4->N12+N4->N13+N4->N14+N4->N15+N4->N16+N4->N17+N4->N18+N4->N19+N4->N20+N4->N21+N4->N22+N4->N23+N4->N24+N4->N25+N4->N26+N4->N27+N4->null+N5->N6+N5->N7+N5->N8+N5->N9+N5->N10+N5->N11+N5->N12+N5->N13+N5->N14+N5->N15+N5->N16+N5->N17+N5->N18+N5->N19+N5->N20+N5->N21+N5->N22+N5->N23+N5->N24+N5->N25+N5->N26+N5->N27+N5->null+N6->N7+N6->N8+N6->N9+N6->N10+N6->N11+N6->N12+N6->N13+N6->N14+N6->N15+N6->N16+N6->N17+N6->N18+N6->N19+N6->N20+N6->N21+N6->N22+N6->N23+N6->N24+N6->N25+N6->N26+N6->N27+N6->null+N7->N8+N7->N9+N7->N10+N7->N11+N7->N12+N7->N13+N7->N14+N7->N15+N7->N16+N7->N17+N7->N18+N7->N19+N7->N20+N7->N21+N7->N22+N7->N23+N7->N24+N7->N25+N7->N26+N7->N27+N7->null+N8->N9+N8->N10+N8->N11+N8->N12+N8->N13+N8->N14+N8->N15+N8->N16+N8->N17+N8->N18+N8->N19+N8->N20+N8->N21+N8->N22+N8->N23+N8->N24+N8->N25+N8->N26+N8->N27+N8->null+N9->N10+N9->N11+N9->N12+N9->N13+N9->N14+N9->N15+N9->N16+N9->N17+N9->N18+N9->N19+N9->N20+N9->N21+N9->N22+N9->N23+N9->N24+N9->N25+N9->N26+N9->N27+N9->null+N10->N11+N10->N12+N10->N13+N10->N14+N10->N15+N10->N16+N10->N17+N10->N18+N10->N19+N10->N20+N10->N21+N10->N22+N10->N23+N10->N24+N10->N25+N10->N26+N10->N27+N10->null+N11->N12+N11->N13+N11->N14+N11->N15+N11->N16+N11->N17+N11->N18+N11->N19+N11->N20+N11->N21+N11->N22+N11->N23+N11->N24+N11->N25+N11->N26+N11->N27+N11->null+N12->N13+N12->N14+N12->N15+N12->N16+N12->N17+N12->N18+N12->N19+N12->N20+N12->N21+N12->N22+N12->N23+N12->N24+N12->N25+N12->N26+N12->N27+N12->null+N13->N14+N13->N15+N13->N16+N13->N17+N13->N18+N13->N19+N13->N20+N13->N21+N13->N22+N13->N23+N13->N24+N13->N25+N13->N26+N13->N27+N13->null+N14->N15+N14->N16+N14->N17+N14->N18+N14->N19+N14->N20+N14->N21+N14->N22+N14->N23+N14->N24+N14->N25+N14->N26+N14->N27+N14->null+N15->N16+N15->N17+N15->N18+N15->N19+N15->N20+N15->N21+N15->N22+N15->N23+N15->N24+N15->N25+N15->N26+N15->N27+N15->null+N16->N17+N16->N18+N16->N19+N16->N20+N16->N21+N16->N22+N16->N23+N16->N24+N16->N25+N16->N26+N16->N27+N16->null+N17->N18+N17->N19+N17->N20+N17->N21+N17->N22+N17->N23+N17->N24+N17->N25+N17->N26+N17->N27+N17->null+N18->N19+N18->N20+N18->N21+N18->N22+N18->N23+N18->N24+N18->N25+N18->N26+N18->N27+N18->null+N19->N20+N19->N21+N19->N22+N19->N23+N19->N24+N19->N25+N19->N26+N19->N27+N19->null+N20->N21+N20->N22+N20->N23+N20->N24+N20->N25+N20->N26+N20->N27+N20->null+N21->N22+N21->N23+N21->N24+N21->N25+N21->N26+N21->N27+N21->null+N22->N23+N22->N24+N22->N25+N22->N26+N22->N27+N22->null+N23->N24+N23->N25+N23->N26+N23->N27+N23->null+N24->N25+N24->N26+N24->N27+N24->null+N25->N26+N25->N27+N25->null+N26->N27+N26->null+N27->null }
+fact { QF.fparent_0 in N0->N1+N0->N2+N0->N3+N0->N4+N0->N5+N0->N6+N0->N7+N0->N8+N0->N9+N0->N10+N0->N11+N0->N12+N0->N13+N0->N14+N0->N15+N0->N16+N0->N17+N0->N18+N0->N19+N0->N20+N0->N21+N0->N22+N0->N23+N0->N24+N0->N25+N0->N26+N0->N27+N0->null+N1->N2+N1->N3+N1->N4+N1->N5+N1->N6+N1->N7+N1->N8+N1->N9+N1->N10+N1->N11+N1->N12+N1->N13+N1->N14+N1->N15+N1->N16+N1->N17+N1->N18+N1->N19+N1->N20+N1->N21+N1->N22+N1->N23+N1->N24+N1->N25+N1->N26+N1->N27+N1->null+N2->N3+N2->N4+N2->N5+N2->N6+N2->N7+N2->N8+N2->N9+N2->N10+N2->N11+N2->N12+N2->N13+N2->N14+N2->N15+N2->N16+N2->N17+N2->N18+N2->N19+N2->N20+N2->N21+N2->N22+N2->N23+N2->N24+N2->N25+N2->N26+N2->N27+N2->null+N3->N4+N3->N5+N3->N6+N3->N7+N3->N8+N3->N9+N3->N10+N3->N11+N3->N12+N3->N13+N3->N14+N3->N15+N3->N16+N3->N17+N3->N18+N3->N19+N3->N20+N3->N21+N3->N22+N3->N23+N3->N24+N3->N25+N3->N26+N3->N27+N3->null+N4->N5+N4->N6+N4->N7+N4->N8+N4->N9+N4->N10+N4->N11+N4->N12+N4->N13+N4->N14+N4->N15+N4->N16+N4->N17+N4->N18+N4->N19+N4->N20+N4->N21+N4->N22+N4->N23+N4->N24+N4->N25+N4->N26+N4->N27+N4->null+N5->N6+N5->N7+N5->N8+N5->N9+N5->N10+N5->N11+N5->N12+N5->N13+N5->N14+N5->N15+N5->N16+N5->N17+N5->N18+N5->N19+N5->N20+N5->N21+N5->N22+N5->N23+N5->N24+N5->N25+N5->N26+N5->N27+N5->null+N6->N7+N6->N8+N6->N9+N6->N10+N6->N11+N6->N12+N6->N13+N6->N14+N6->N15+N6->N16+N6->N17+N6->N18+N6->N19+N6->N20+N6->N21+N6->N22+N6->N23+N6->N24+N6->N25+N6->N26+N6->N27+N6->null+N7->N8+N7->N9+N7->N10+N7->N11+N7->N12+N7->N13+N7->N14+N7->N15+N7->N16+N7->N17+N7->N18+N7->N19+N7->N20+N7->N21+N7->N22+N7->N23+N7->N24+N7->N25+N7->N26+N7->N27+N7->null+N8->N9+N8->N10+N8->N11+N8->N12+N8->N13+N8->N14+N8->N15+N8->N16+N8->N17+N8->N18+N8->N19+N8->N20+N8->N21+N8->N22+N8->N23+N8->N24+N8->N25+N8->N26+N8->N27+N8->null+N9->N10+N9->N11+N9->N12+N9->N13+N9->N14+N9->N15+N9->N16+N9->N17+N9->N18+N9->N19+N9->N20+N9->N21+N9->N22+N9->N23+N9->N24+N9->N25+N9->N26+N9->N27+N9->null+N10->N11+N10->N12+N10->N13+N10->N14+N10->N15+N10->N16+N10->N17+N10->N18+N10->N19+N10->N20+N10->N21+N10->N22+N10->N23+N10->N24+N10->N25+N10->N26+N10->N27+N10->null+N11->N12+N11->N13+N11->N14+N11->N15+N11->N16+N11->N17+N11->N18+N11->N19+N11->N20+N11->N21+N11->N22+N11->N23+N11->N24+N11->N25+N11->N26+N11->N27+N11->null+N12->N13+N12->N14+N12->N15+N12->N16+N12->N17+N12->N18+N12->N19+N12->N20+N12->N21+N12->N22+N12->N23+N12->N24+N12->N25+N12->N26+N12->N27+N12->null+N13->N14+N13->N15+N13->N16+N13->N17+N13->N18+N13->N19+N13->N20+N13->N21+N13->N22+N13->N23+N13->N24+N13->N25+N13->N26+N13->N27+N13->null+N14->N15+N14->N16+N14->N17+N14->N18+N14->N19+N14->N20+N14->N21+N14->N22+N14->N23+N14->N24+N14->N25+N14->N26+N14->N27+N14->null+N15->N16+N15->N17+N15->N18+N15->N19+N15->N20+N15->N21+N15->N22+N15->N23+N15->N24+N15->N25+N15->N26+N15->N27+N15->null+N16->N17+N16->N18+N16->N19+N16->N20+N16->N21+N16->N22+N16->N23+N16->N24+N16->N25+N16->N26+N16->N27+N16->null+N17->N18+N17->N19+N17->N20+N17->N21+N17->N22+N17->N23+N17->N24+N17->N25+N17->N26+N17->N27+N17->null+N18->N19+N18->N20+N18->N21+N18->N22+N18->N23+N18->N24+N18->N25+N18->N26+N18->N27+N18->null+N19->N20+N19->N21+N19->N22+N19->N23+N19->N24+N19->N25+N19->N26+N19->N27+N19->null+N20->N21+N20->N22+N20->N23+N20->N24+N20->N25+N20->N26+N20->N27+N20->null+N21->N22+N21->N23+N21->N24+N21->N25+N21->N26+N21->N27+N21->null+N22->N23+N22->N24+N22->N25+N22->N26+N22->N27+N22->null+N23->N24+N23->N25+N23->N26+N23->N27+N23->null+N24->N25+N24->N26+N24->N27+N24->null+N25->N26+N25->N27+N25->null+N26->N27+N26->null+N27->null }
+fact { QF.bleft_0 in N0->N0+N1->N0+N1->N1+N2->N0+N2->N1+N2->N2+N3->N0+N3->N1+N3->N2+N3->N3+N4->N0+N4->N1+N4->N2+N4->N3+N4->N4+N5->N0+N5->N1+N5->N2+N5->N3+N5->N4+N5->N5+N6->N0+N6->N1+N6->N2+N6->N3+N6->N4+N6->N5+N6->N6+N7->N0+N7->N1+N7->N2+N7->N3+N7->N4+N7->N5+N7->N6+N7->N7+N8->N0+N8->N1+N8->N2+N8->N3+N8->N4+N8->N5+N8->N6+N8->N7+N8->N8+N9->N0+N9->N1+N9->N2+N9->N3+N9->N4+N9->N5+N9->N6+N9->N7+N9->N8+N9->N9+N10->N0+N10->N1+N10->N2+N10->N3+N10->N4+N10->N5+N10->N6+N10->N7+N10->N8+N10->N9+N10->N10+N11->N0+N11->N1+N11->N2+N11->N3+N11->N4+N11->N5+N11->N6+N11->N7+N11->N8+N11->N9+N11->N10+N11->N11+N12->N0+N12->N1+N12->N2+N12->N3+N12->N4+N12->N5+N12->N6+N12->N7+N12->N8+N12->N9+N12->N10+N12->N11+N12->N12+N13->N0+N13->N1+N13->N2+N13->N3+N13->N4+N13->N5+N13->N6+N13->N7+N13->N8+N13->N9+N13->N10+N13->N11+N13->N12+N13->N13+N14->N0+N14->N1+N14->N2+N14->N3+N14->N4+N14->N5+N14->N6+N14->N7+N14->N8+N14->N9+N14->N10+N14->N11+N14->N12+N14->N13+N14->N14+N15->N0+N15->N1+N15->N2+N15->N3+N15->N4+N15->N5+N15->N6+N15->N7+N15->N8+N15->N9+N15->N10+N15->N11+N15->N12+N15->N13+N15->N14+N15->N15+N16->N0+N16->N1+N16->N2+N16->N3+N16->N4+N16->N5+N16->N6+N16->N7+N16->N8+N16->N9+N16->N10+N16->N11+N16->N12+N16->N13+N16->N14+N16->N15+N16->N16+N17->N0+N17->N1+N17->N2+N17->N3+N17->N4+N17->N5+N17->N6+N17->N7+N17->N8+N17->N9+N17->N10+N17->N11+N17->N12+N17->N13+N17->N14+N17->N15+N17->N16+N17->N17+N18->N0+N18->N1+N18->N2+N18->N3+N18->N4+N18->N5+N18->N6+N18->N7+N18->N8+N18->N9+N18->N10+N18->N11+N18->N12+N18->N13+N18->N14+N18->N15+N18->N16+N18->N17+N18->N18+N19->N0+N19->N1+N19->N2+N19->N3+N19->N4+N19->N5+N19->N6+N19->N7+N19->N8+N19->N9+N19->N10+N19->N11+N19->N12+N19->N13+N19->N14+N19->N15+N19->N16+N19->N17+N19->N18+N19->N19+N20->N0+N20->N1+N20->N2+N20->N3+N20->N4+N20->N5+N20->N6+N20->N7+N20->N8+N20->N9+N20->N10+N20->N11+N20->N12+N20->N13+N20->N14+N20->N15+N20->N16+N20->N17+N20->N18+N20->N19+N20->N20+N21->N0+N21->N1+N21->N2+N21->N3+N21->N4+N21->N5+N21->N6+N21->N7+N21->N8+N21->N9+N21->N10+N21->N11+N21->N12+N21->N13+N21->N14+N21->N15+N21->N16+N21->N17+N21->N18+N21->N19+N21->N20+N21->N21+N22->N0+N22->N1+N22->N2+N22->N3+N22->N4+N22->N5+N22->N6+N22->N7+N22->N8+N22->N9+N22->N10+N22->N11+N22->N12+N22->N13+N22->N14+N22->N15+N22->N16+N22->N17+N22->N18+N22->N19+N22->N20+N22->N21+N22->N22+N23->N0+N23->N1+N23->N2+N23->N3+N23->N4+N23->N5+N23->N6+N23->N7+N23->N8+N23->N9+N23->N10+N23->N11+N23->N12+N23->N13+N23->N14+N23->N15+N23->N16+N23->N17+N23->N18+N23->N19+N23->N20+N23->N21+N23->N22+N23->N23+N24->N0+N24->N1+N24->N2+N24->N3+N24->N4+N24->N5+N24->N6+N24->N7+N24->N8+N24->N9+N24->N10+N24->N11+N24->N12+N24->N13+N24->N14+N24->N15+N24->N16+N24->N17+N24->N18+N24->N19+N24->N20+N24->N21+N24->N22+N24->N23+N24->N24+N25->N0+N25->N1+N25->N2+N25->N3+N25->N4+N25->N5+N25->N6+N25->N7+N25->N8+N25->N9+N25->N10+N25->N11+N25->N12+N25->N13+N25->N14+N25->N15+N25->N16+N25->N17+N25->N18+N25->N19+N25->N20+N25->N21+N25->N22+N25->N23+N25->N24+N25->N25+N26->N0+N26->N1+N26->N2+N26->N3+N26->N4+N26->N5+N26->N6+N26->N7+N26->N8+N26->N9+N26->N10+N26->N11+N26->N12+N26->N13+N26->N14+N26->N15+N26->N16+N26->N17+N26->N18+N26->N19+N26->N20+N26->N21+N26->N22+N26->N23+N26->N24+N26->N25+N26->N26+N27->N0+N27->N1+N27->N2+N27->N3+N27->N4+N27->N5+N27->N6+N27->N7+N27->N8+N27->N9+N27->N10+N27->N11+N27->N12+N27->N13+N27->N14+N27->N15+N27->N16+N27->N17+N27->N18+N27->N19+N27->N20+N27->N21+N27->N22+N27->N23+N27->N24+N27->N25+N27->N26+N27->N27 }
+fact { QF.bright_0 in N0->N0+N1->N0+N1->N1+N2->N0+N2->N1+N2->N2+N3->N0+N3->N1+N3->N2+N3->N3+N4->N0+N4->N1+N4->N2+N4->N3+N4->N4+N5->N0+N5->N1+N5->N2+N5->N3+N5->N4+N5->N5+N6->N0+N6->N1+N6->N2+N6->N3+N6->N4+N6->N5+N6->N6+N7->N0+N7->N1+N7->N2+N7->N3+N7->N4+N7->N5+N7->N6+N7->N7+N8->N0+N8->N1+N8->N2+N8->N3+N8->N4+N8->N5+N8->N6+N8->N7+N8->N8+N9->N0+N9->N1+N9->N2+N9->N3+N9->N4+N9->N5+N9->N6+N9->N7+N9->N8+N9->N9+N10->N0+N10->N1+N10->N2+N10->N3+N10->N4+N10->N5+N10->N6+N10->N7+N10->N8+N10->N9+N10->N10+N11->N0+N11->N1+N11->N2+N11->N3+N11->N4+N11->N5+N11->N6+N11->N7+N11->N8+N11->N9+N11->N10+N11->N11+N12->N0+N12->N1+N12->N2+N12->N3+N12->N4+N12->N5+N12->N6+N12->N7+N12->N8+N12->N9+N12->N10+N12->N11+N12->N12+N13->N0+N13->N1+N13->N2+N13->N3+N13->N4+N13->N5+N13->N6+N13->N7+N13->N8+N13->N9+N13->N10+N13->N11+N13->N12+N13->N13+N14->N0+N14->N1+N14->N2+N14->N3+N14->N4+N14->N5+N14->N6+N14->N7+N14->N8+N14->N9+N14->N10+N14->N11+N14->N12+N14->N13+N14->N14+N15->N0+N15->N1+N15->N2+N15->N3+N15->N4+N15->N5+N15->N6+N15->N7+N15->N8+N15->N9+N15->N10+N15->N11+N15->N12+N15->N13+N15->N14+N15->N15+N16->N0+N16->N1+N16->N2+N16->N3+N16->N4+N16->N5+N16->N6+N16->N7+N16->N8+N16->N9+N16->N10+N16->N11+N16->N12+N16->N13+N16->N14+N16->N15+N16->N16+N17->N0+N17->N1+N17->N2+N17->N3+N17->N4+N17->N5+N17->N6+N17->N7+N17->N8+N17->N9+N17->N10+N17->N11+N17->N12+N17->N13+N17->N14+N17->N15+N17->N16+N17->N17+N18->N0+N18->N1+N18->N2+N18->N3+N18->N4+N18->N5+N18->N6+N18->N7+N18->N8+N18->N9+N18->N10+N18->N11+N18->N12+N18->N13+N18->N14+N18->N15+N18->N16+N18->N17+N18->N18+N19->N0+N19->N1+N19->N2+N19->N3+N19->N4+N19->N5+N19->N6+N19->N7+N19->N8+N19->N9+N19->N10+N19->N11+N19->N12+N19->N13+N19->N14+N19->N15+N19->N16+N19->N17+N19->N18+N19->N19+N20->N0+N20->N1+N20->N2+N20->N3+N20->N4+N20->N5+N20->N6+N20->N7+N20->N8+N20->N9+N20->N10+N20->N11+N20->N12+N20->N13+N20->N14+N20->N15+N20->N16+N20->N17+N20->N18+N20->N19+N20->N20+N21->N0+N21->N1+N21->N2+N21->N3+N21->N4+N21->N5+N21->N6+N21->N7+N21->N8+N21->N9+N21->N10+N21->N11+N21->N12+N21->N13+N21->N14+N21->N15+N21->N16+N21->N17+N21->N18+N21->N19+N21->N20+N21->N21+N22->N0+N22->N1+N22->N2+N22->N3+N22->N4+N22->N5+N22->N6+N22->N7+N22->N8+N22->N9+N22->N10+N22->N11+N22->N12+N22->N13+N22->N14+N22->N15+N22->N16+N22->N17+N22->N18+N22->N19+N22->N20+N22->N21+N22->N22+N23->N0+N23->N1+N23->N2+N23->N3+N23->N4+N23->N5+N23->N6+N23->N7+N23->N8+N23->N9+N23->N10+N23->N11+N23->N12+N23->N13+N23->N14+N23->N15+N23->N16+N23->N17+N23->N18+N23->N19+N23->N20+N23->N21+N23->N22+N23->N23+N24->N0+N24->N1+N24->N2+N24->N3+N24->N4+N24->N5+N24->N6+N24->N7+N24->N8+N24->N9+N24->N10+N24->N11+N24->N12+N24->N13+N24->N14+N24->N15+N24->N16+N24->N17+N24->N18+N24->N19+N24->N20+N24->N21+N24->N22+N24->N23+N24->N24+N25->N0+N25->N1+N25->N2+N25->N3+N25->N4+N25->N5+N25->N6+N25->N7+N25->N8+N25->N9+N25->N10+N25->N11+N25->N12+N25->N13+N25->N14+N25->N15+N25->N16+N25->N17+N25->N18+N25->N19+N25->N20+N25->N21+N25->N22+N25->N23+N25->N24+N25->N25+N26->N0+N26->N1+N26->N2+N26->N3+N26->N4+N26->N5+N26->N6+N26->N7+N26->N8+N26->N9+N26->N10+N26->N11+N26->N12+N26->N13+N26->N14+N26->N15+N26->N16+N26->N17+N26->N18+N26->N19+N26->N20+N26->N21+N26->N22+N26->N23+N26->N24+N26->N25+N26->N26+N27->N0+N27->N1+N27->N2+N27->N3+N27->N4+N27->N5+N27->N6+N27->N7+N27->N8+N27->N9+N27->N10+N27->N11+N27->N12+N27->N13+N27->N14+N27->N15+N27->N16+N27->N17+N27->N18+N27->N19+N27->N20+N27->N21+N27->N22+N27->N23+N27->N24+N27->N25+N27->N26+N27->N27 }
+fact { QF.bparent_0 in N0->N0+N1->N0+N1->N1+N2->N0+N2->N1+N2->N2+N3->N0+N3->N1+N3->N2+N3->N3+N4->N0+N4->N1+N4->N2+N4->N3+N4->N4+N5->N0+N5->N1+N5->N2+N5->N3+N5->N4+N5->N5+N6->N0+N6->N1+N6->N2+N6->N3+N6->N4+N6->N5+N6->N6+N7->N0+N7->N1+N7->N2+N7->N3+N7->N4+N7->N5+N7->N6+N7->N7+N8->N0+N8->N1+N8->N2+N8->N3+N8->N4+N8->N5+N8->N6+N8->N7+N8->N8+N9->N0+N9->N1+N9->N2+N9->N3+N9->N4+N9->N5+N9->N6+N9->N7+N9->N8+N9->N9+N10->N0+N10->N1+N10->N2+N10->N3+N10->N4+N10->N5+N10->N6+N10->N7+N10->N8+N10->N9+N10->N10+N11->N0+N11->N1+N11->N2+N11->N3+N11->N4+N11->N5+N11->N6+N11->N7+N11->N8+N11->N9+N11->N10+N11->N11+N12->N0+N12->N1+N12->N2+N12->N3+N12->N4+N12->N5+N12->N6+N12->N7+N12->N8+N12->N9+N12->N10+N12->N11+N12->N12+N13->N0+N13->N1+N13->N2+N13->N3+N13->N4+N13->N5+N13->N6+N13->N7+N13->N8+N13->N9+N13->N10+N13->N11+N13->N12+N13->N13+N14->N0+N14->N1+N14->N2+N14->N3+N14->N4+N14->N5+N14->N6+N14->N7+N14->N8+N14->N9+N14->N10+N14->N11+N14->N12+N14->N13+N14->N14+N15->N0+N15->N1+N15->N2+N15->N3+N15->N4+N15->N5+N15->N6+N15->N7+N15->N8+N15->N9+N15->N10+N15->N11+N15->N12+N15->N13+N15->N14+N15->N15+N16->N0+N16->N1+N16->N2+N16->N3+N16->N4+N16->N5+N16->N6+N16->N7+N16->N8+N16->N9+N16->N10+N16->N11+N16->N12+N16->N13+N16->N14+N16->N15+N16->N16+N17->N0+N17->N1+N17->N2+N17->N3+N17->N4+N17->N5+N17->N6+N17->N7+N17->N8+N17->N9+N17->N10+N17->N11+N17->N12+N17->N13+N17->N14+N17->N15+N17->N16+N17->N17+N18->N0+N18->N1+N18->N2+N18->N3+N18->N4+N18->N5+N18->N6+N18->N7+N18->N8+N18->N9+N18->N10+N18->N11+N18->N12+N18->N13+N18->N14+N18->N15+N18->N16+N18->N17+N18->N18+N19->N0+N19->N1+N19->N2+N19->N3+N19->N4+N19->N5+N19->N6+N19->N7+N19->N8+N19->N9+N19->N10+N19->N11+N19->N12+N19->N13+N19->N14+N19->N15+N19->N16+N19->N17+N19->N18+N19->N19+N20->N0+N20->N1+N20->N2+N20->N3+N20->N4+N20->N5+N20->N6+N20->N7+N20->N8+N20->N9+N20->N10+N20->N11+N20->N12+N20->N13+N20->N14+N20->N15+N20->N16+N20->N17+N20->N18+N20->N19+N20->N20+N21->N0+N21->N1+N21->N2+N21->N3+N21->N4+N21->N5+N21->N6+N21->N7+N21->N8+N21->N9+N21->N10+N21->N11+N21->N12+N21->N13+N21->N14+N21->N15+N21->N16+N21->N17+N21->N18+N21->N19+N21->N20+N21->N21+N22->N0+N22->N1+N22->N2+N22->N3+N22->N4+N22->N5+N22->N6+N22->N7+N22->N8+N22->N9+N22->N10+N22->N11+N22->N12+N22->N13+N22->N14+N22->N15+N22->N16+N22->N17+N22->N18+N22->N19+N22->N20+N22->N21+N22->N22+N23->N0+N23->N1+N23->N2+N23->N3+N23->N4+N23->N5+N23->N6+N23->N7+N23->N8+N23->N9+N23->N10+N23->N11+N23->N12+N23->N13+N23->N14+N23->N15+N23->N16+N23->N17+N23->N18+N23->N19+N23->N20+N23->N21+N23->N22+N23->N23+N24->N0+N24->N1+N24->N2+N24->N3+N24->N4+N24->N5+N24->N6+N24->N7+N24->N8+N24->N9+N24->N10+N24->N11+N24->N12+N24->N13+N24->N14+N24->N15+N24->N16+N24->N17+N24->N18+N24->N19+N24->N20+N24->N21+N24->N22+N24->N23+N24->N24+N25->N0+N25->N1+N25->N2+N25->N3+N25->N4+N25->N5+N25->N6+N25->N7+N25->N8+N25->N9+N25->N10+N25->N11+N25->N12+N25->N13+N25->N14+N25->N15+N25->N16+N25->N17+N25->N18+N25->N19+N25->N20+N25->N21+N25->N22+N25->N23+N25->N24+N25->N25+N26->N0+N26->N1+N26->N2+N26->N3+N26->N4+N26->N5+N26->N6+N26->N7+N26->N8+N26->N9+N26->N10+N26->N11+N26->N12+N26->N13+N26->N14+N26->N15+N26->N16+N26->N17+N26->N18+N26->N19+N26->N20+N26->N21+N26->N22+N26->N23+N26->N24+N26->N25+N26->N26+N27->N0+N27->N1+N27->N2+N27->N3+N27->N4+N27->N5+N27->N6+N27->N7+N27->N8+N27->N9+N27->N10+N27->N11+N27->N12+N27->N13+N27->N14+N27->N15+N27->N16+N27->N17+N27->N18+N27->N19+N27->N20+N27->N21+N27->N22+N27->N23+N27->N24+N27->N25+N27->N26+N27->N27 }
+
+
+fact {
+	(QF.key_0) in N0->i320+N0->i321+N0->i322+N0->i323+N0->i324+N0->i325+N0->i326+N0->i327+N0->i328+N0->i329+N0->i3210+N0->i3211+N0->i3212+N0->i3213+N0->i3214+N0->i3215+N0->i3216+N0->i3217+N0->i3218+N0->i3219+N0->i3220+N0->i3221+N0->i3222+N0->i3223+N0->i3224+N0->i3225+N0->i3226+N0->i3227+N0->null+N1->i320+N1->i321+N1->i322+N1->i323+N1->i324+N1->i325+N1->i326+N1->i327+N1->i328+N1->i329+N1->i3210+N1->i3211+N1->i3212+N1->i3213+N1->i3214+N1->i3215+N1->i3216+N1->i3217+N1->i3218+N1->i3219+N1->i3220+N1->i3221+N1->i3222+N1->i3223+N1->i3224+N1->i3225+N1->i3226+N1->i3227+N1->null+N2->i320+N2->i321+N2->i322+N2->i323+N2->i324+N2->i325+N2->i326+N2->i327+N2->i328+N2->i329+N2->i3210+N2->i3211+N2->i3212+N2->i3213+N2->i3214+N2->i3215+N2->i3216+N2->i3217+N2->i3218+N2->i3219+N2->i3220+N2->i3221+N2->i3222+N2->i3223+N2->i3224+N2->i3225+N2->i3226+N2->i3227+N2->null+N3->i320+N3->i321+N3->i322+N3->i323+N3->i324+N3->i325+N3->i326+N3->i327+N3->i328+N3->i329+N3->i3210+N3->i3211+N3->i3212+N3->i3213+N3->i3214+N3->i3215+N3->i3216+N3->i3217+N3->i3218+N3->i3219+N3->i3220+N3->i3221+N3->i3222+N3->i3223+N3->i3224+N3->i3225+N3->i3226+N3->i3227+N3->null+N4->i320+N4->i321+N4->i322+N4->i323+N4->i324+N4->i325+N4->i326+N4->i327+N4->i328+N4->i329+N4->i3210+N4->i3211+N4->i3212+N4->i3213+N4->i3214+N4->i3215+N4->i3216+N4->i3217+N4->i3218+N4->i3219+N4->i3220+N4->i3221+N4->i3222+N4->i3223+N4->i3224+N4->i3225+N4->i3226+N4->i3227+N4->null+N5->i320+N5->i321+N5->i322+N5->i323+N5->i324+N5->i325+N5->i326+N5->i327+N5->i328+N5->i329+N5->i3210+N5->i3211+N5->i3212+N5->i3213+N5->i3214+N5->i3215+N5->i3216+N5->i3217+N5->i3218+N5->i3219+N5->i3220+N5->i3221+N5->i3222+N5->i3223+N5->i3224+N5->i3225+N5->i3226+N5->i3227+N5->null+N6->i320+N6->i321+N6->i322+N6->i323+N6->i324+N6->i325+N6->i326+N6->i327+N6->i328+N6->i329+N6->i3210+N6->i3211+N6->i3212+N6->i3213+N6->i3214+N6->i3215+N6->i3216+N6->i3217+N6->i3218+N6->i3219+N6->i3220+N6->i3221+N6->i3222+N6->i3223+N6->i3224+N6->i3225+N6->i3226+N6->i3227+N6->null+N7->i320+N7->i321+N7->i322+N7->i323+N7->i324+N7->i325+N7->i326+N7->i327+N7->i328+N7->i329+N7->i3210+N7->i3211+N7->i3212+N7->i3213+N7->i3214+N7->i3215+N7->i3216+N7->i3217+N7->i3218+N7->i3219+N7->i3220+N7->i3221+N7->i3222+N7->i3223+N7->i3224+N7->i3225+N7->i3226+N7->i3227+N7->null+N8->i320+N8->i321+N8->i322+N8->i323+N8->i324+N8->i325+N8->i326+N8->i327+N8->i328+N8->i329+N8->i3210+N8->i3211+N8->i3212+N8->i3213+N8->i3214+N8->i3215+N8->i3216+N8->i3217+N8->i3218+N8->i3219+N8->i3220+N8->i3221+N8->i3222+N8->i3223+N8->i3224+N8->i3225+N8->i3226+N8->i3227+N8->null+N9->i320+N9->i321+N9->i322+N9->i323+N9->i324+N9->i325+N9->i326+N9->i327+N9->i328+N9->i329+N9->i3210+N9->i3211+N9->i3212+N9->i3213+N9->i3214+N9->i3215+N9->i3216+N9->i3217+N9->i3218+N9->i3219+N9->i3220+N9->i3221+N9->i3222+N9->i3223+N9->i3224+N9->i3225+N9->i3226+N9->i3227+N9->null+N10->i320+N10->i321+N10->i322+N10->i323+N10->i324+N10->i325+N10->i326+N10->i327+N10->i328+N10->i329+N10->i3210+N10->i3211+N10->i3212+N10->i3213+N10->i3214+N10->i3215+N10->i3216+N10->i3217+N10->i3218+N10->i3219+N10->i3220+N10->i3221+N10->i3222+N10->i3223+N10->i3224+N10->i3225+N10->i3226+N10->i3227+N10->null+N11->i320+N11->i321+N11->i322+N11->i323+N11->i324+N11->i325+N11->i326+N11->i327+N11->i328+N11->i329+N11->i3210+N11->i3211+N11->i3212+N11->i3213+N11->i3214+N11->i3215+N11->i3216+N11->i3217+N11->i3218+N11->i3219+N11->i3220+N11->i3221+N11->i3222+N11->i3223+N11->i3224+N11->i3225+N11->i3226+N11->i3227+N11->null+N12->i320+N12->i321+N12->i322+N12->i323+N12->i324+N12->i325+N12->i326+N12->i327+N12->i328+N12->i329+N12->i3210+N12->i3211+N12->i3212+N12->i3213+N12->i3214+N12->i3215+N12->i3216+N12->i3217+N12->i3218+N12->i3219+N12->i3220+N12->i3221+N12->i3222+N12->i3223+N12->i3224+N12->i3225+N12->i3226+N12->i3227+N12->null+N13->i320+N13->i321+N13->i322+N13->i323+N13->i324+N13->i325+N13->i326+N13->i327+N13->i328+N13->i329+N13->i3210+N13->i3211+N13->i3212+N13->i3213+N13->i3214+N13->i3215+N13->i3216+N13->i3217+N13->i3218+N13->i3219+N13->i3220+N13->i3221+N13->i3222+N13->i3223+N13->i3224+N13->i3225+N13->i3226+N13->i3227+N13->null+N14->i320+N14->i321+N14->i322+N14->i323+N14->i324+N14->i325+N14->i326+N14->i327+N14->i328+N14->i329+N14->i3210+N14->i3211+N14->i3212+N14->i3213+N14->i3214+N14->i3215+N14->i3216+N14->i3217+N14->i3218+N14->i3219+N14->i3220+N14->i3221+N14->i3222+N14->i3223+N14->i3224+N14->i3225+N14->i3226+N14->i3227+N14->null+N15->i320+N15->i321+N15->i322+N15->i323+N15->i324+N15->i325+N15->i326+N15->i327+N15->i328+N15->i329+N15->i3210+N15->i3211+N15->i3212+N15->i3213+N15->i3214+N15->i3215+N15->i3216+N15->i3217+N15->i3218+N15->i3219+N15->i3220+N15->i3221+N15->i3222+N15->i3223+N15->i3224+N15->i3225+N15->i3226+N15->i3227+N15->null+N16->i320+N16->i321+N16->i322+N16->i323+N16->i324+N16->i325+N16->i326+N16->i327+N16->i328+N16->i329+N16->i3210+N16->i3211+N16->i3212+N16->i3213+N16->i3214+N16->i3215+N16->i3216+N16->i3217+N16->i3218+N16->i3219+N16->i3220+N16->i3221+N16->i3222+N16->i3223+N16->i3224+N16->i3225+N16->i3226+N16->i3227+N16->null+N17->i320+N17->i321+N17->i322+N17->i323+N17->i324+N17->i325+N17->i326+N17->i327+N17->i328+N17->i329+N17->i3210+N17->i3211+N17->i3212+N17->i3213+N17->i3214+N17->i3215+N17->i3216+N17->i3217+N17->i3218+N17->i3219+N17->i3220+N17->i3221+N17->i3222+N17->i3223+N17->i3224+N17->i3225+N17->i3226+N17->i3227+N17->null+N18->i320+N18->i321+N18->i322+N18->i323+N18->i324+N18->i325+N18->i326+N18->i327+N18->i328+N18->i329+N18->i3210+N18->i3211+N18->i3212+N18->i3213+N18->i3214+N18->i3215+N18->i3216+N18->i3217+N18->i3218+N18->i3219+N18->i3220+N18->i3221+N18->i3222+N18->i3223+N18->i3224+N18->i3225+N18->i3226+N18->i3227+N18->null+N19->i320+N19->i321+N19->i322+N19->i323+N19->i324+N19->i325+N19->i326+N19->i327+N19->i328+N19->i329+N19->i3210+N19->i3211+N19->i3212+N19->i3213+N19->i3214+N19->i3215+N19->i3216+N19->i3217+N19->i3218+N19->i3219+N19->i3220+N19->i3221+N19->i3222+N19->i3223+N19->i3224+N19->i3225+N19->i3226+N19->i3227+N19->null+N20->i320+N20->i321+N20->i322+N20->i323+N20->i324+N20->i325+N20->i326+N20->i327+N20->i328+N20->i329+N20->i3210+N20->i3211+N20->i3212+N20->i3213+N20->i3214+N20->i3215+N20->i3216+N20->i3217+N20->i3218+N20->i3219+N20->i3220+N20->i3221+N20->i3222+N20->i3223+N20->i3224+N20->i3225+N20->i3226+N20->i3227+N20->null+N21->i320+N21->i321+N21->i322+N21->i323+N21->i324+N21->i325+N21->i326+N21->i327+N21->i328+N21->i329+N21->i3210+N21->i3211+N21->i3212+N21->i3213+N21->i3214+N21->i3215+N21->i3216+N21->i3217+N21->i3218+N21->i3219+N21->i3220+N21->i3221+N21->i3222+N21->i3223+N21->i3224+N21->i3225+N21->i3226+N21->i3227+N21->null+N22->i320+N22->i321+N22->i322+N22->i323+N22->i324+N22->i325+N22->i326+N22->i327+N22->i328+N22->i329+N22->i3210+N22->i3211+N22->i3212+N22->i3213+N22->i3214+N22->i3215+N22->i3216+N22->i3217+N22->i3218+N22->i3219+N22->i3220+N22->i3221+N22->i3222+N22->i3223+N22->i3224+N22->i3225+N22->i3226+N22->i3227+N22->null+N23->i320+N23->i321+N23->i322+N23->i323+N23->i324+N23->i325+N23->i326+N23->i327+N23->i328+N23->i329+N23->i3210+N23->i3211+N23->i3212+N23->i3213+N23->i3214+N23->i3215+N23->i3216+N23->i3217+N23->i3218+N23->i3219+N23->i3220+N23->i3221+N23->i3222+N23->i3223+N23->i3224+N23->i3225+N23->i3226+N23->i3227+N23->null+N24->i320+N24->i321+N24->i322+N24->i323+N24->i324+N24->i325+N24->i326+N24->i327+N24->i328+N24->i329+N24->i3210+N24->i3211+N24->i3212+N24->i3213+N24->i3214+N24->i3215+N24->i3216+N24->i3217+N24->i3218+N24->i3219+N24->i3220+N24->i3221+N24->i3222+N24->i3223+N24->i3224+N24->i3225+N24->i3226+N24->i3227+N24->null+N25->i320+N25->i321+N25->i322+N25->i323+N25->i324+N25->i325+N25->i326+N25->i327+N25->i328+N25->i329+N25->i3210+N25->i3211+N25->i3212+N25->i3213+N25->i3214+N25->i3215+N25->i3216+N25->i3217+N25->i3218+N25->i3219+N25->i3220+N25->i3221+N25->i3222+N25->i3223+N25->i3224+N25->i3225+N25->i3226+N25->i3227+N25->null+N26->i320+N26->i321+N26->i322+N26->i323+N26->i324+N26->i325+N26->i326+N26->i327+N26->i328+N26->i329+N26->i3210+N26->i3211+N26->i3212+N26->i3213+N26->i3214+N26->i3215+N26->i3216+N26->i3217+N26->i3218+N26->i3219+N26->i3220+N26->i3221+N26->i3222+N26->i3223+N26->i3224+N26->i3225+N26->i3226+N26->i3227+N26->null+N27->i320+N27->i321+N27->i322+N27->i323+N27->i324+N27->i325+N27->i326+N27->i327+N27->i328+N27->i329+N27->i3210+N27->i3211+N27->i3212+N27->i3213+N27->i3214+N27->i3215+N27->i3216+N27->i3217+N27->i3218+N27->i3219+N27->i3220+N27->i3221+N27->i3222+N27->i3223+N27->i3224+N27->i3225+N27->i3226+N27->i3227+N27->null
+}
+
+
+fact {
+	(QF.size_0) in TreeSetIntVar->i320+TreeSetIntVar->i321+TreeSetIntVar->i322+TreeSetIntVar->i323+TreeSetIntVar->i324+TreeSetIntVar->i325+TreeSetIntVar->i326+TreeSetIntVar->i327+TreeSetIntVar->i328+TreeSetIntVar->i329+TreeSetIntVar->i3210+TreeSetIntVar->i3211+TreeSetIntVar->i3212+TreeSetIntVar->i3213+TreeSetIntVar->i3214+TreeSetIntVar->i3215+TreeSetIntVar->i3216+TreeSetIntVar->i3217+TreeSetIntVar->i3218+TreeSetIntVar->i3219+TreeSetIntVar->i3220+TreeSetIntVar->i3221+TreeSetIntVar->i3222+TreeSetIntVar->i3223+TreeSetIntVar->i3224+TreeSetIntVar->i3225+TreeSetIntVar->i3226+TreeSetIntVar->i3227+TreeSetIntVar->i3228
+}
+
+
+fact {
+	(QF.blackHeight_0) in N0->i320+N0->i321+N0->i322+N0->i323+N0->i324+N0->i325+N0->i326+N0->i327+N0->i328+N0->i329+N0->i3210+N0->i3211+N0->i3212+N0->i3213+N0->i3214+N0->i3215+N0->i3216+N0->i3217+N0->i3218+N0->i3219+N0->i3220+N0->i3221+N0->i3222+N0->i3223+N0->i3224+N0->i3225+N0->i3226+N0->i3227+N0->null+N1->i320+N1->i321+N1->i322+N1->i323+N1->i324+N1->i325+N1->i326+N1->i327+N1->i328+N1->i329+N1->i3210+N1->i3211+N1->i3212+N1->i3213+N1->i3214+N1->i3215+N1->i3216+N1->i3217+N1->i3218+N1->i3219+N1->i3220+N1->i3221+N1->i3222+N1->i3223+N1->i3224+N1->i3225+N1->i3226+N1->i3227+N1->null+N2->i320+N2->i321+N2->i322+N2->i323+N2->i324+N2->i325+N2->i326+N2->i327+N2->i328+N2->i329+N2->i3210+N2->i3211+N2->i3212+N2->i3213+N2->i3214+N2->i3215+N2->i3216+N2->i3217+N2->i3218+N2->i3219+N2->i3220+N2->i3221+N2->i3222+N2->i3223+N2->i3224+N2->i3225+N2->i3226+N2->i3227+N2->null+N3->i320+N3->i321+N3->i322+N3->i323+N3->i324+N3->i325+N3->i326+N3->i327+N3->i328+N3->i329+N3->i3210+N3->i3211+N3->i3212+N3->i3213+N3->i3214+N3->i3215+N3->i3216+N3->i3217+N3->i3218+N3->i3219+N3->i3220+N3->i3221+N3->i3222+N3->i3223+N3->i3224+N3->i3225+N3->i3226+N3->i3227+N3->null+N4->i320+N4->i321+N4->i322+N4->i323+N4->i324+N4->i325+N4->i326+N4->i327+N4->i328+N4->i329+N4->i3210+N4->i3211+N4->i3212+N4->i3213+N4->i3214+N4->i3215+N4->i3216+N4->i3217+N4->i3218+N4->i3219+N4->i3220+N4->i3221+N4->i3222+N4->i3223+N4->i3224+N4->i3225+N4->i3226+N4->i3227+N4->null+N5->i320+N5->i321+N5->i322+N5->i323+N5->i324+N5->i325+N5->i326+N5->i327+N5->i328+N5->i329+N5->i3210+N5->i3211+N5->i3212+N5->i3213+N5->i3214+N5->i3215+N5->i3216+N5->i3217+N5->i3218+N5->i3219+N5->i3220+N5->i3221+N5->i3222+N5->i3223+N5->i3224+N5->i3225+N5->i3226+N5->i3227+N5->null+N6->i320+N6->i321+N6->i322+N6->i323+N6->i324+N6->i325+N6->i326+N6->i327+N6->i328+N6->i329+N6->i3210+N6->i3211+N6->i3212+N6->i3213+N6->i3214+N6->i3215+N6->i3216+N6->i3217+N6->i3218+N6->i3219+N6->i3220+N6->i3221+N6->i3222+N6->i3223+N6->i3224+N6->i3225+N6->i3226+N6->i3227+N6->null+N7->i320+N7->i321+N7->i322+N7->i323+N7->i324+N7->i325+N7->i326+N7->i327+N7->i328+N7->i329+N7->i3210+N7->i3211+N7->i3212+N7->i3213+N7->i3214+N7->i3215+N7->i3216+N7->i3217+N7->i3218+N7->i3219+N7->i3220+N7->i3221+N7->i3222+N7->i3223+N7->i3224+N7->i3225+N7->i3226+N7->i3227+N7->null+N8->i320+N8->i321+N8->i322+N8->i323+N8->i324+N8->i325+N8->i326+N8->i327+N8->i328+N8->i329+N8->i3210+N8->i3211+N8->i3212+N8->i3213+N8->i3214+N8->i3215+N8->i3216+N8->i3217+N8->i3218+N8->i3219+N8->i3220+N8->i3221+N8->i3222+N8->i3223+N8->i3224+N8->i3225+N8->i3226+N8->i3227+N8->null+N9->i320+N9->i321+N9->i322+N9->i323+N9->i324+N9->i325+N9->i326+N9->i327+N9->i328+N9->i329+N9->i3210+N9->i3211+N9->i3212+N9->i3213+N9->i3214+N9->i3215+N9->i3216+N9->i3217+N9->i3218+N9->i3219+N9->i3220+N9->i3221+N9->i3222+N9->i3223+N9->i3224+N9->i3225+N9->i3226+N9->i3227+N9->null+N10->i320+N10->i321+N10->i322+N10->i323+N10->i324+N10->i325+N10->i326+N10->i327+N10->i328+N10->i329+N10->i3210+N10->i3211+N10->i3212+N10->i3213+N10->i3214+N10->i3215+N10->i3216+N10->i3217+N10->i3218+N10->i3219+N10->i3220+N10->i3221+N10->i3222+N10->i3223+N10->i3224+N10->i3225+N10->i3226+N10->i3227+N10->null+N11->i320+N11->i321+N11->i322+N11->i323+N11->i324+N11->i325+N11->i326+N11->i327+N11->i328+N11->i329+N11->i3210+N11->i3211+N11->i3212+N11->i3213+N11->i3214+N11->i3215+N11->i3216+N11->i3217+N11->i3218+N11->i3219+N11->i3220+N11->i3221+N11->i3222+N11->i3223+N11->i3224+N11->i3225+N11->i3226+N11->i3227+N11->null+N12->i320+N12->i321+N12->i322+N12->i323+N12->i324+N12->i325+N12->i326+N12->i327+N12->i328+N12->i329+N12->i3210+N12->i3211+N12->i3212+N12->i3213+N12->i3214+N12->i3215+N12->i3216+N12->i3217+N12->i3218+N12->i3219+N12->i3220+N12->i3221+N12->i3222+N12->i3223+N12->i3224+N12->i3225+N12->i3226+N12->i3227+N12->null+N13->i320+N13->i321+N13->i322+N13->i323+N13->i324+N13->i325+N13->i326+N13->i327+N13->i328+N13->i329+N13->i3210+N13->i3211+N13->i3212+N13->i3213+N13->i3214+N13->i3215+N13->i3216+N13->i3217+N13->i3218+N13->i3219+N13->i3220+N13->i3221+N13->i3222+N13->i3223+N13->i3224+N13->i3225+N13->i3226+N13->i3227+N13->null+N14->i320+N14->i321+N14->i322+N14->i323+N14->i324+N14->i325+N14->i326+N14->i327+N14->i328+N14->i329+N14->i3210+N14->i3211+N14->i3212+N14->i3213+N14->i3214+N14->i3215+N14->i3216+N14->i3217+N14->i3218+N14->i3219+N14->i3220+N14->i3221+N14->i3222+N14->i3223+N14->i3224+N14->i3225+N14->i3226+N14->i3227+N14->null+N15->i320+N15->i321+N15->i322+N15->i323+N15->i324+N15->i325+N15->i326+N15->i327+N15->i328+N15->i329+N15->i3210+N15->i3211+N15->i3212+N15->i3213+N15->i3214+N15->i3215+N15->i3216+N15->i3217+N15->i3218+N15->i3219+N15->i3220+N15->i3221+N15->i3222+N15->i3223+N15->i3224+N15->i3225+N15->i3226+N15->i3227+N15->null+N16->i320+N16->i321+N16->i322+N16->i323+N16->i324+N16->i325+N16->i326+N16->i327+N16->i328+N16->i329+N16->i3210+N16->i3211+N16->i3212+N16->i3213+N16->i3214+N16->i3215+N16->i3216+N16->i3217+N16->i3218+N16->i3219+N16->i3220+N16->i3221+N16->i3222+N16->i3223+N16->i3224+N16->i3225+N16->i3226+N16->i3227+N16->null+N17->i320+N17->i321+N17->i322+N17->i323+N17->i324+N17->i325+N17->i326+N17->i327+N17->i328+N17->i329+N17->i3210+N17->i3211+N17->i3212+N17->i3213+N17->i3214+N17->i3215+N17->i3216+N17->i3217+N17->i3218+N17->i3219+N17->i3220+N17->i3221+N17->i3222+N17->i3223+N17->i3224+N17->i3225+N17->i3226+N17->i3227+N17->null+N18->i320+N18->i321+N18->i322+N18->i323+N18->i324+N18->i325+N18->i326+N18->i327+N18->i328+N18->i329+N18->i3210+N18->i3211+N18->i3212+N18->i3213+N18->i3214+N18->i3215+N18->i3216+N18->i3217+N18->i3218+N18->i3219+N18->i3220+N18->i3221+N18->i3222+N18->i3223+N18->i3224+N18->i3225+N18->i3226+N18->i3227+N18->null+N19->i320+N19->i321+N19->i322+N19->i323+N19->i324+N19->i325+N19->i326+N19->i327+N19->i328+N19->i329+N19->i3210+N19->i3211+N19->i3212+N19->i3213+N19->i3214+N19->i3215+N19->i3216+N19->i3217+N19->i3218+N19->i3219+N19->i3220+N19->i3221+N19->i3222+N19->i3223+N19->i3224+N19->i3225+N19->i3226+N19->i3227+N19->null+N20->i320+N20->i321+N20->i322+N20->i323+N20->i324+N20->i325+N20->i326+N20->i327+N20->i328+N20->i329+N20->i3210+N20->i3211+N20->i3212+N20->i3213+N20->i3214+N20->i3215+N20->i3216+N20->i3217+N20->i3218+N20->i3219+N20->i3220+N20->i3221+N20->i3222+N20->i3223+N20->i3224+N20->i3225+N20->i3226+N20->i3227+N20->null+N21->i320+N21->i321+N21->i322+N21->i323+N21->i324+N21->i325+N21->i326+N21->i327+N21->i328+N21->i329+N21->i3210+N21->i3211+N21->i3212+N21->i3213+N21->i3214+N21->i3215+N21->i3216+N21->i3217+N21->i3218+N21->i3219+N21->i3220+N21->i3221+N21->i3222+N21->i3223+N21->i3224+N21->i3225+N21->i3226+N21->i3227+N21->null+N22->i320+N22->i321+N22->i322+N22->i323+N22->i324+N22->i325+N22->i326+N22->i327+N22->i328+N22->i329+N22->i3210+N22->i3211+N22->i3212+N22->i3213+N22->i3214+N22->i3215+N22->i3216+N22->i3217+N22->i3218+N22->i3219+N22->i3220+N22->i3221+N22->i3222+N22->i3223+N22->i3224+N22->i3225+N22->i3226+N22->i3227+N22->null+N23->i320+N23->i321+N23->i322+N23->i323+N23->i324+N23->i325+N23->i326+N23->i327+N23->i328+N23->i329+N23->i3210+N23->i3211+N23->i3212+N23->i3213+N23->i3214+N23->i3215+N23->i3216+N23->i3217+N23->i3218+N23->i3219+N23->i3220+N23->i3221+N23->i3222+N23->i3223+N23->i3224+N23->i3225+N23->i3226+N23->i3227+N23->null+N24->i320+N24->i321+N24->i322+N24->i323+N24->i324+N24->i325+N24->i326+N24->i327+N24->i328+N24->i329+N24->i3210+N24->i3211+N24->i3212+N24->i3213+N24->i3214+N24->i3215+N24->i3216+N24->i3217+N24->i3218+N24->i3219+N24->i3220+N24->i3221+N24->i3222+N24->i3223+N24->i3224+N24->i3225+N24->i3226+N24->i3227+N24->null+N25->i320+N25->i321+N25->i322+N25->i323+N25->i324+N25->i325+N25->i326+N25->i327+N25->i328+N25->i329+N25->i3210+N25->i3211+N25->i3212+N25->i3213+N25->i3214+N25->i3215+N25->i3216+N25->i3217+N25->i3218+N25->i3219+N25->i3220+N25->i3221+N25->i3222+N25->i3223+N25->i3224+N25->i3225+N25->i3226+N25->i3227+N25->null+N26->i320+N26->i321+N26->i322+N26->i323+N26->i324+N26->i325+N26->i326+N26->i327+N26->i328+N26->i329+N26->i3210+N26->i3211+N26->i3212+N26->i3213+N26->i3214+N26->i3215+N26->i3216+N26->i3217+N26->i3218+N26->i3219+N26->i3220+N26->i3221+N26->i3222+N26->i3223+N26->i3224+N26->i3225+N26->i3226+N26->i3227+N26->null+N27->i320+N27->i321+N27->i322+N27->i323+N27->i324+N27->i325+N27->i326+N27->i327+N27->i328+N27->i329+N27->i3210+N27->i3211+N27->i3212+N27->i3213+N27->i3214+N27->i3215+N27->i3216+N27->i3217+N27->i3218+N27->i3219+N27->i3220+N27->i3221+N27->i3222+N27->i3223+N27->i3224+N27->i3225+N27->i3226+N27->i3227+N27->null
+}
+
+
+
+
+fun node_max[es: set (N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26+N27)] : lone (N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26+N27) {
+ es - es.(
+   N1->(N0)
+   +
+   N2->(N0+N1)
+   +
+   N3->(N0+N1+N2)
+   +
+   N4->(N0+N1+N2+N3)
+   +
+   N5->(N0+N1+N2+N3+N4)
+   +
+   N6->(N0+N1+N2+N3+N4+N5)
+   +
+   N7->(N0+N1+N2+N3+N4+N5+N6)
+   +
+   N8->(N0+N1+N2+N3+N4+N5+N6+N7)
+   +
+   N9->(N0+N1+N2+N3+N4+N5+N6+N7+N8)
+   +
+   N10->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9)
+   +
+   N11->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10)
+   +
+   N12->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11)
+   +
+   N13->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12)
+   +
+   N14->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13)
+   +
+   N15->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14)
+   +
+   N16->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15)
+   +
+   N17->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16)
+   +
+   N18->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17)
+   +
+   N19->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18)
+   +
+   N20->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19)
+   +
+   N21->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20)
+   +
+   N22->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21)
+   +
+   N23->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22)
+   +
+   N24->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23)
+   +
+   N25->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24)
+   +
+   N26->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25)
+   +
+   N27->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26)
+ )
+}
+
+
+fact {
+	let m = node_max[FReach[]-null], size = (QF.thiz_0).(QF.size_0) | 
+	  (no m and size = i320) or 
+	  (m = N0 and size = i321) or
+	  (m = N1 and size = i322) or
+	  (m = N2 and size = i323) or
+	  (m = N3 and size = i324) or
+	  (m = N4 and size = i325) or
+	  (m = N5 and size = i326) or
+	  (m = N6 and size = i327) or
+	  (m = N7 and size = i328) or
+	  (m = N8 and size = i329) or
+	  (m = N9 and size = i3210) or
+	  (m = N10 and size = i3211) or
+	  (m = N11 and size = i3212) or
+	  (m = N12 and size = i3213) or
+	  (m = N13 and size = i3214) or
+	  (m = N14 and size = i3215) or
+	  (m = N15 and size = i3216) or
+	  (m = N16 and size = i3217) or
+	  (m = N17 and size = i3218) or
+	  (m = N18 and size = i3219) or
+	  (m = N19 and size = i3220) or
+	  (m = N20 and size = i3221) or
+	  (m = N21 and size = i3222) or
+	  (m = N22 and size = i3223) or
+	  (m = N23 and size = i3224) or
+	  (m = N24 and size = i3225) or
+	  (m = N25 and size = i3226) or
+	  (m = N26 and size = i3227) or
+	  (m = N27 and size = i3228)
+}
+
+
+pred CanSatisfyInvariant[] {}
+run CanSatisfyInvariant for 0 but exactly 1 TreeSetIntVar, exactly 28 TreeSetIntVarNode, 1 int, exactly 29 JavaPrimitiveIntegerValue
+
+fun node_next[]: (N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26+N27) -> lone (N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26+N27) {
+ N0->N1
+ +
+ N1->N2
+ +
+ N2->N3
+ +
+ N3->N4
+ +
+ N4->N5
+ +
+ N5->N6
+ +
+ N6->N7
+ +
+ N7->N8
+ +
+ N8->N9
+ +
+ N9->N10
+ +
+ N10->N11
+ +
+ N11->N12
+ +
+ N12->N13
+ +
+ N13->N14
+ +
+ N14->N15
+ +
+ N15->N16
+ +
+ N16->N17
+ +
+ N17->N18
+ +
+ N18->N19
+ +
+ N19->N20
+ +
+ N20->N21
+ +
+ N21->N22
+ +
+ N22->N23
+ +
+ N23->N24
+ +
+ N24->N25
+ +
+ N25->N26
+ +
+ N26->N27
+}
+
+
+fun node_prevs[e: N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26+N27] :set (N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26+N27) {
+ e.(
+   N1->(N0)
+   +
+   N2->(N0+N1)
+   +
+   N3->(N0+N1+N2)
+   +
+   N4->(N0+N1+N2+N3)
+   +
+   N5->(N0+N1+N2+N3+N4)
+   +
+   N6->(N0+N1+N2+N3+N4+N5)
+   +
+   N7->(N0+N1+N2+N3+N4+N5+N6)
+   +
+   N8->(N0+N1+N2+N3+N4+N5+N6+N7)
+   +
+   N9->(N0+N1+N2+N3+N4+N5+N6+N7+N8)
+   +
+   N10->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9)
+   +
+   N11->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10)
+   +
+   N12->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11)
+   +
+   N13->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12)
+   +
+   N14->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13)
+   +
+   N15->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14)
+   +
+   N16->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15)
+   +
+   N17->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16)
+   +
+   N18->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17)
+   +
+   N19->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18)
+   +
+   N20->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19)
+   +
+   N21->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20)
+   +
+   N22->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21)
+   +
+   N23->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22)
+   +
+   N24->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23)
+   +
+   N25->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24)
+   +
+   N26->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25)
+   +
+   N27->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26)
+ )
+}
+
+
+fun node_rprevs[e: N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26+N27] :set (N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26+N27) {
+ e.(
+   N0->(N0)
+   +
+   N1->(N0+N1)
+   +
+   N2->(N0+N1+N2)
+   +
+   N3->(N0+N1+N2+N3)
+   +
+   N4->(N0+N1+N2+N3+N4)
+   +
+   N5->(N0+N1+N2+N3+N4+N5)
+   +
+   N6->(N0+N1+N2+N3+N4+N5+N6)
+   +
+   N7->(N0+N1+N2+N3+N4+N5+N6+N7)
+   +
+   N8->(N0+N1+N2+N3+N4+N5+N6+N7+N8)
+   +
+   N9->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9)
+   +
+   N10->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10)
+   +
+   N11->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11)
+   +
+   N12->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12)
+   +
+   N13->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13)
+   +
+   N14->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14)
+   +
+   N15->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15)
+   +
+   N16->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16)
+   +
+   N17->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17)
+   +
+   N18->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18)
+   +
+   N19->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19)
+   +
+   N20->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20)
+   +
+   N21->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21)
+   +
+   N22->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22)
+   +
+   N23->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23)
+   +
+   N24->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24)
+   +
+   N25->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25)
+   +
+   N26->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26)
+   +
+   N27->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26+N27)
+ )
+}
+
+
+fun node_relprevs[] : (N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26+N27) -> set (N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26+N27) {
+   N0->(N0)
+   +
+   N1->(N0+N1)
+   +
+   N2->(N0+N1+N2)
+   +
+   N3->(N0+N1+N2+N3)
+   +
+   N4->(N0+N1+N2+N3+N4)
+   +
+   N5->(N0+N1+N2+N3+N4+N5)
+   +
+   N6->(N0+N1+N2+N3+N4+N5+N6)
+   +
+   N7->(N0+N1+N2+N3+N4+N5+N6+N7)
+   +
+   N8->(N0+N1+N2+N3+N4+N5+N6+N7+N8)
+   +
+   N9->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9)
+   +
+   N10->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10)
+   +
+   N11->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11)
+   +
+   N12->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12)
+   +
+   N13->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13)
+   +
+   N14->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14)
+   +
+   N15->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15)
+   +
+   N16->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16)
+   +
+   N17->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17)
+   +
+   N18->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18)
+   +
+   N19->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19)
+   +
+   N20->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20)
+   +
+   N21->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21)
+   +
+   N22->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22)
+   +
+   N23->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23)
+   +
+   N24->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24)
+   +
+   N25->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25)
+   +
+   N26->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26)
+   +
+   N27->(N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26+N27)
+}
+
+
+fun node_min[es: set (N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26+N27)] : lone (N0+N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26+N27) {
+ es - es.(
+   N0->(N1+N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26+N27)
+   +
+   N1->(N2+N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26+N27)
+   +
+   N2->(N3+N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26+N27)
+   +
+   N3->(N4+N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26+N27)
+   +
+   N4->(N5+N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26+N27)
+   +
+   N5->(N6+N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26+N27)
+   +
+   N6->(N7+N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26+N27)
+   +
+   N7->(N8+N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26+N27)
+   +
+   N8->(N9+N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26+N27)
+   +
+   N9->(N10+N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26+N27)
+   +
+   N10->(N11+N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26+N27)
+   +
+   N11->(N12+N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26+N27)
+   +
+   N12->(N13+N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26+N27)
+   +
+   N13->(N14+N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26+N27)
+   +
+   N14->(N15+N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26+N27)
+   +
+   N15->(N16+N17+N18+N19+N20+N21+N22+N23+N24+N25+N26+N27)
+   +
+   N16->(N17+N18+N19+N20+N21+N22+N23+N24+N25+N26+N27)
+   +
+   N17->(N18+N19+N20+N21+N22+N23+N24+N25+N26+N27)
+   +
+   N18->(N19+N20+N21+N22+N23+N24+N25+N26+N27)
+   +
+   N19->(N20+N21+N22+N23+N24+N25+N26+N27)
+   +
+   N20->(N21+N22+N23+N24+N25+N26+N27)
+   +
+   N21->(N22+N23+N24+N25+N26+N27)
+   +
+   N22->(N23+N24+N25+N26+N27)
+   +
+   N23->(N24+N25+N26+N27)
+   +
+   N24->(N25+N26+N27)
+   +
+   N25->(N26+N27)
+   +
+   N26->(N27)
+ )
+}
+
+
+
+

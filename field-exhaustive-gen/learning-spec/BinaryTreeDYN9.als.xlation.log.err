@@ -1,0 +1,10 @@
+Exception in thread "main" Syntax error in /Users/fmolina/phd/software/alloy-learning/field-exhaustive-gen/learning-spec/BinaryTreeDYN9.als at line 68 column 6:
+The name cannot contain the '$' symbol.
+	at edu.mit.csail.sdg.alloy4compiler.parser.CUP$CompParser$actions.nod(CompParser.java:18252)
+	at edu.mit.csail.sdg.alloy4compiler.parser.CUP$CompParser$actions.CUP$CompParser$do_action(CompParser.java:21415)
+	at edu.mit.csail.sdg.alloy4compiler.parser.CompParser.do_action(CompParser.java:17977)
+	at edu.mit.csail.sdg.alloy4compiler.parser.CompParser.parse(CompParser.java:18018)
+	at edu.mit.csail.sdg.alloy4compiler.parser.CompParser.alloy_parseStream(CompParser.java:18204)
+	at edu.mit.csail.sdg.alloy4compiler.parser.CompUtil.parseRecursively(CompUtil.java:120)
+	at edu.mit.csail.sdg.alloy4compiler.parser.CompUtil.parseEverything_fromFile(CompUtil.java:217)
+	at rfm.alloy.CLI.main(CLI.java:83)

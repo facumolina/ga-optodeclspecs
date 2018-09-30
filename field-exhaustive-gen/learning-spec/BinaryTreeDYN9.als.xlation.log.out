@@ -1,0 +1,10 @@
+
+00000000  Starting Alloy Analyzer command line interface
+
+    * CLI version             : 1.6.2rc3
+    * Alloy version           : 4.1.10
+    * Input spec file         : /Users/fmolina/phd/software/alloy-learning/field-exhaustive-gen/learning-spec/BinaryTreeDYN9.als
+    * Guigna bounds hack      : enabled
+
+00000021  Parsing and typechecking
+

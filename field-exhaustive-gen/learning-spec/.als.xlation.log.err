@@ -1,0 +1,14 @@
+Exception in thread "main" Syntax error:
+File cannot be found.
+/home/koodu/facu/machinelearningspec/field-exhaustive-gen/learning-spec/.als (No existe el archivo o el directorio)
+	at edu.mit.csail.sdg.alloy4compiler.parser.CompUtil.parseEverything_fromFile(CompUtil.java:221)
+	at rfm.alloy.CLI.main(CLI.java:83)
+Caused by: java.io.FileNotFoundException: /home/koodu/facu/machinelearningspec/field-exhaustive-gen/learning-spec/.als (No existe el archivo o el directorio)
+	at java.io.FileInputStream.open(Native Method)
+	at java.io.FileInputStream.<init>(FileInputStream.java:146)
+	at java.io.FileInputStream.<init>(FileInputStream.java:101)
+	at edu.mit.csail.sdg.alloy4.Util.readAll(Util.java:241)
+	at edu.mit.csail.sdg.alloy4compiler.parser.CompParser.alloy_parseStream(CompParser.java:18197)
+	at edu.mit.csail.sdg.alloy4compiler.parser.CompUtil.parseRecursively(CompUtil.java:120)
+	at edu.mit.csail.sdg.alloy4compiler.parser.CompUtil.parseEverything_fromFile(CompUtil.java:217)
+	... 1 more

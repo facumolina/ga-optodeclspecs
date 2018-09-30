@@ -1,0 +1,29 @@
+Warning #1
+== is redundant, because the left and right expressions are always disjoint.
+Left type = {Integer5/JavaPrimitiveIntegerValue}
+Right type = {Int}
+Warning #2
+== is redundant, because the left and right expressions are always disjoint.
+Left type = {Integer5/JavaPrimitiveIntegerValue}
+Right type = {Int}
+Warning #3
+== is redundant, because the left and right expressions are always disjoint.
+Left type = {Int}
+Right type = {Integer5/JavaPrimitiveIntegerValue}
+Warning #4
+== is redundant, because the left and right expressions are always disjoint.
+Left type = {Int}
+Right type = {Integer5/JavaPrimitiveIntegerValue}
+Warning #5
+This variable is unused.
+Warning #6
+This variable is unused.
+Warning #7
+This variable is unused.
+Warning #8
+This variable is unused.
+Warning #9
+- is irrelevant since the right expression is redundant.
+Parent's relevant type = {this/BSTreeIntVarNode}
+Left type = {this/BSTreeIntVarNode}
+Right type = {this/null}

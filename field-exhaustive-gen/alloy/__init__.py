@@ -1,0 +1,10 @@
+__all__ = ['cli', 'kodkod', 'relations', 'syntax', 'models',
+	'cli.als2cnfbed', 'cli.AlloyCLI', 'cli.RelsParser',
+	'kodkod.Universe', 'kodkod.RelsReader', 'kodkod.Relation',
+	'relations.Relations',
+	'syntax.Command',
+	'syntax.AlsFile',
+	'syntax.AlsFactory',
+	'models.ClosureFactory',
+	'models.PamelaFactory',
+	]

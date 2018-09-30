@@ -1,0 +1,8 @@
+nodes=N0,N1,N2,N3,N4,N5,N6,N7,N8
+QF.root_0=BSTreeIntVar:N0
+QF.fleft_0=N2:null,N3:null,N4:null,N5:N6,N6:null,N7:null,N8:null
+QF.bleft_0=N0:N0,N1:N1
+QF.fright_0=N0:N1,N1:N2,N2:N3,N3:N4,N4:N5,N5:N7,N7:N8,N8:null
+QF.bright_0=N6:N2
+QF.key_0=N0:5,N1:null,N2:1,N3:0,N4:0,N5:0,N6:0,N7:8,N8:0
+QF.size_0=BSTreeIntVar:9

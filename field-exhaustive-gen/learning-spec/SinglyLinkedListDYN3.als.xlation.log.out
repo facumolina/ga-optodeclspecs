@@ -1,0 +1,35 @@
+
+00000000  Starting Alloy Analyzer command line interface
+
+    * CLI version             : 1.6.2rc3
+    * Alloy version           : 4.1.10
+    * Input spec file         : /Users/fmolina/phd/software/alloy-learning/field-exhaustive-gen/learning-spec/SinglyLinkedListDYN3.als
+    * Guigna bounds hack      : enabled
+
+00000027  Parsing and typechecking
+
+    * Command type            : run
+    * Command label           : NegativeCounterExample
+
+00000158  Translating Alloy to Kodkod
+
+    * Solver                  : cnf
+    * Bit width               : 3
+    * Max sequence            : 3
+    * Skolem depth            : 0
+    * Symmbreaking            : 20
+
+00000234  Translating Kodkod to CNF + BED + rels
+
+    * BED output file         : /Users/fmolina/phd/software/alloy-learning/field-exhaustive-gen/learning-spec/SinglyLinkedListDYN3.als.bed
+    * Rels output file        : /Users/fmolina/phd/software/alloy-learning/field-exhaustive-gen/learning-spec/SinglyLinkedListDYN3.als.rels
+
+00000337  Solving
+
+    * Primary vars            : 85
+    * Total vars              : 1086
+    * Clauses                 : 2382
+    * CNF output file         : /var/folders/wp/bxq9ttq13vv_8zmjbqlylfqh0000gn/T/tmp2908632732984215817.cnf
+
+00000338  Translation finished
+
